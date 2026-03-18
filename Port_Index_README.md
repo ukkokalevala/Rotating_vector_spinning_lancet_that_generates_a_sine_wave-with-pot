@@ -23,6 +23,6 @@ COM8 = index 1
 Step 3 — Use the INDEX (not the port number)
 myPort = new Serial(this, Serial.list()[1], 115200);
 
-✔ NOT [8]
-✔ USE [1]
+ NOT [8]
+ USE [1]
 
