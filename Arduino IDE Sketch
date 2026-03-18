@@ -1,0 +1,24 @@
+// ------------------ USER SET POT PIN ------------------
+#define POT_PIN 1  // <--- change this to your chosen ADC pin
+// ------------------------------------------------------
+
+float freq = 1.0;
+
+void setup() {
+  Serial.begin(115200);
+  pinMode(POT_PIN, INPUT);
+}
+
+void loop() {
+  // read pot value (0–4095)
+  int potValue = analogRead(POT_PIN);
+
+  // map pot to frequency range (0.5 Hz to 5 Hz)
+  freq = map(potValue, 0, 4095, 50, 500); // scale first
+  freq = freq / 100.0;                    // now 0.5 - 5 Hz
+
+  // send frequency to Processing
+  Serial.println(freq);
+
+  delay(50); // update ~20 times/sec
+}
