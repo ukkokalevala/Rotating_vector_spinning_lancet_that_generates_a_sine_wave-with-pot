@@ -1,0 +1,71 @@
+import processing.serial.*;
+
+Serial myPort;
+float angle = 0;
+float freq = 1.0;
+ArrayList<Float> wave = new ArrayList<Float>();
+
+void setup() {
+  size(900, 400);
+  println(Serial.list()); // check your COM/port
+  myPort = new Serial(this, Serial.list()[1], 115200); // change [0] to your ESP32 port
+  myPort.bufferUntil('\n');
+}
+
+void draw() {
+  background(0);
+
+  // ---- LEFT: spinning lancet
+  translate(200, height/2);
+  float radius = 100;
+
+  stroke(255);
+  noFill();
+  ellipse(0, 0, radius*2, radius*2);
+
+  float x = radius * cos(angle);
+  float y = radius * sin(angle);
+
+  // rotating arm
+  line(0, 0, x, y);
+  ellipse(x, y, 8, 8);
+
+  // projection line to wave
+  line(x, y, 200, y);
+
+  // ---- store wave
+  wave.add(0, y);
+
+  // ---- RIGHT: wave
+  translate(200, 0);
+  stroke(0, 255, 255);
+  noFill();
+  beginShape();
+  for (int i = 0; i < wave.size(); i++) {
+    vertex(i, wave.get(i));
+  }
+  endShape();
+
+  if (wave.size() > 600) wave.remove(wave.size() - 1);
+
+  // ---- reset matrix for text
+  resetMatrix();
+  fill(255);
+  textSize(16);
+  text("ESP32 Controlled Wave", 10, 20);
+  text("f = " + nf(freq,1,2) + " Hz", 10, 40);
+  text("T = " + nf(1.0/freq,1,3) + " s", 10, 60);
+  text("f = 1/T", 10, 80);
+
+  // ---- update rotation
+  angle += 0.05 * freq;
+}
+
+// ---- Serial receive
+void serialEvent(Serial p) {
+  String inData = p.readStringUntil('\n');
+  if (inData != null) {
+    inData = trim(inData);
+    freq = float(inData);
+  }
+}
